@@ -1,0 +1,52 @@
+# ---------- Android / Gradle ----------
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# 签名文件绝不提交
+*.jks
+*.keystore
+keystore.properties
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.idea/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# 后端本地数据库（不要提交真实/测试数据库文件）
+*.db
+*.sqlite
+*.sqlite3
+backend/data/
+
+# ---------- 编辑器 / 系统 ----------
+.vscode/*
+!.vscode/extensions.json
+Thumbs.db
+desktop.ini
+~$*
+
+# ---------- 大文件 ----------
+*.zip
+*.7z

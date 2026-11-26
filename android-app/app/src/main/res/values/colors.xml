@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 只放「Android 系统层面」需要的颜色；Compose 里的颜色在 ui/theme/Color.kt -->
+    <color name="cream_background">#FFFFF8F3</color>
+    <color name="surface_white">#FFFFFFFF</color>
+    <color name="ic_launcher_background">#FFB4572C</color>
+</resources>
