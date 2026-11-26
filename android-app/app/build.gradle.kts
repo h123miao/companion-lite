@@ -7,6 +7,8 @@ plugins {
 android {
     namespace = "com.companionlite"
     compileSdk = 35
+    // 固定构建工具版本，避免 AGP 自动去下载别的版本（国内网络很容易卡在这一步）
+    buildToolsVersion = "35.0.0"
 
     defaultConfig {
         applicationId = "com.companionlite"

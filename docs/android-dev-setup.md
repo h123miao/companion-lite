@@ -10,6 +10,10 @@
 
 项目配置：`compileSdk 35`、`minSdk 26`、`targetSdk 35`、Kotlin 2.0.21、AGP 8.7.3。
 
+> 关于下载速度：`gradle-wrapper.properties` 里的 Gradle 发行包地址已经指向国内镜像
+> `https://mirrors.cloud.tencent.com/gradle/gradle-8.9-bin.zip`，`settings.gradle.kts` 里也配了阿里云 Maven 镜像。
+> 如果哪天镜像挂了，把它改回官方地址 `https://services.gradle.org/distributions/gradle-8.9-bin.zip` 即可。
+
 ---
 
 ## 2. 第一次打开
