@@ -1,0 +1,11 @@
+# Python 缓存，不需要提交到 GitHub
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# 本地虚拟环境
+.venv/
+venv/
+
+# 注意：testdata/simulated_profiles.json 和 report/test_report.md 是交付物，必须提交
