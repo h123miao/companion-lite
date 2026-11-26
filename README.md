@@ -22,6 +22,18 @@
 > **铁律：谁都不许改别人的目录，谁也不许改公共字段名。**
 > 需要改别人目录里的东西，先在群里说，由对方改。
 
+### 现在仓库里已经有什么
+
+| 部分 | 状态 |
+| --- | --- |
+| `android-app/` 本人端 9 个页面 + 主题 + 导航 + 模拟数据 | ✅ 已完成，能编译出 debug APK |
+| `docs/android-ui-design.md`（页面结构、跳转图、首页布局、设计规范、数据需求） | ✅ 已完成 |
+| `docs/api.md` 公共字段约定（`trust_state` 等） | 🟡 草案，等 C 定稿 |
+| `backend/`、`algorithm/`、`test-data/` | ⬜ 目录和说明已就位，等 C / D 开工 |
+
+Android 端现在用的是 `data/mock/MockRepository.kt` 里的模拟数据，界面会显示「演示数据」提示条。
+B 接后端时只替换这一层，页面代码不用改。
+
 ---
 
 ## 1. 给另外三位同学的 AI 的开场提示词
@@ -56,12 +68,14 @@ cd companion-lite
 dir            # Windows
 ls -R          # macOS / Linux
 
-# 3) 建立自己的分支（分支名见上面表格）
-git switch -c feature/android-ui      # A
-git switch -c feature/android-api     # B
-git switch -c feature/backend         # C
-git switch -c feature/algorithm       # D
+# 3) 切到自己的分支（四个分支已经在仓库里建好了，不需要 -c 新建）
+git switch feature/android-ui      # A
+git switch feature/android-api     # B
+git switch feature/backend         # C
+git switch feature/algorithm       # D
 ```
+
+如果提示 `fatal: invalid reference`，先执行一次 `git fetch origin` 再切。
 
 > 第一次 push 可能要登录 GitHub。用 GitHub 账号 + Personal Access Token 当密码；
 > 或者在 Android Studio / VS Code 里点 "Sign in with GitHub"。
@@ -122,7 +136,7 @@ git add algorithm test-data                                    # D
 git commit -m "A: 完成首页与签到页布局"
 
 # 4) 推到自己分支
-git push -u origin feature/android-ui
+git push
 ```
 
 推上去以后，在 GitHub 网页上开一个 **Pull Request**（`feature/xxx` → `main`），

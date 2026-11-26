@@ -10,6 +10,23 @@
 
 项目配置：`compileSdk 35`、`minSdk 26`、`targetSdk 35`、Kotlin 2.0.21、AGP 8.7.3。
 
+> **这台电脑上已经装好了编译环境**（A 搭好的，省得再下一次 1GB）：
+> - JDK 17：`D:\tools\jdk-17.0.2`
+> - Android SDK（platform 35 + build-tools 35.0.0）：`D:\tools\android-sdk`
+> - Gradle 8.9：`D:\tools\gradle-8.9`
+>
+> 装完 Android Studio 后，在 `Settings → Languages & Frameworks → Android SDK` 里把 SDK 路径指到
+> `D:\tools\android-sdk`，就不用再下载一遍 SDK 了。
+> 命令行编译（不打开 Android Studio）：
+>
+> ```powershell
+> $env:JAVA_HOME = "D:\tools\jdk-17.0.2"
+> cd D:\CompanionLite\android-app
+> .\gradlew.bat assembleDebug
+> ```
+>
+> 产物在 `app\build\outputs\apk\debug\app-debug.apk`（约 10MB）。
+
 > 关于下载速度：`gradle-wrapper.properties` 里的 Gradle 发行包地址已经指向国内镜像
 > `https://mirrors.cloud.tencent.com/gradle/gradle-8.9-bin.zip`，`settings.gradle.kts` 里也配了阿里云 Maven 镜像。
 > 如果哪天镜像挂了，把它改回官方地址 `https://services.gradle.org/distributions/gradle-8.9-bin.zip` 即可。
