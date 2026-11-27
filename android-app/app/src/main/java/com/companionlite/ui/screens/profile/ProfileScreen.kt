@@ -68,7 +68,7 @@ fun ProfileScreen(
             containerColor = SurfaceWhite,
             shape = RoundedCornerShape(24.dp),
             title = { Text("确认退出登录？", style = MaterialTheme.typography.titleLarge) },
-            text = { Text("退出后需要重新输入手机号和密码。", style = MaterialTheme.typography.bodyMedium) },
+            text = { Text("退出后需要重新输入用户名和密码。", style = MaterialTheme.typography.bodyMedium) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.onDismissLogout()

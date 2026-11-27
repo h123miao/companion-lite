@@ -1,6 +1,6 @@
 # Android 本人端 UI 设计说明
 
-> 负责人：成员 A ｜ 版本：v1.1 ｜ 状态：**设计方案已确认 + 代码骨架已落地**
+> 负责人：成员 A ｜ 版本：v1.2 ｜ 状态：**设计方案已确认 + 代码骨架已落地**
 >
 > 本文档对应《分工.md》里成员 A 的「第一项任务」：页面结构、页面跳转关系、首页布局、项目文件目录。
 > 代码骨架已经在 `android-app/` 里落地，`gradlew assembleDebug` 能编译出 debug APK，全部使用模拟数据，
@@ -41,8 +41,8 @@
 
 | 编号 | 页面 | 路由 | 入口 | 核心内容 | 对应模块 |
 | --- | --- | --- | --- | --- | --- |
-| P1 | 登录页 | `login` | App 启动 | 手机号 + 密码、演示账号提示、去注册 | 模块 1 |
-| P2 | 注册页 | `register` | P1「立即注册」 | 身份（本人/家属）、称呼、手机号、密码 | 模块 1 |
+| P1 | 登录页 | `login` | App 启动 | 用户名 + 密码、演示账号提示、去注册 | 模块 1 |
+| P2 | 注册页 | `register` | P1「立即注册」 | 身份（本人/家属）、用户名、称呼、密码 | 模块 1 |
 | P3 | 本人端首页 | `home` | 登录成功 / 底部「首页」 | 今日状态、待确认关怀、快捷操作、最近活动、近 7 天规律 | 模块 2/5/6/7 |
 | P4 | 每日签到页 | `checkin` | P3「现在签到」 | 身体感觉、心情、备注、希望家人联系我 | 模块 2 |
 | P5 | 活动记录页 | `activity` | P3「记一笔活动」、P6 底部按钮 | 8 种活动类型、备注、今日已记录 | 模块 2 |
@@ -195,14 +195,16 @@ flowchart TD
 
 ## 7. 数据可信度 6 态的 UI 表达（本项目最重要的界面规范）
 
-| 状态 | 标签文字 | 颜色 | 界面上的措辞（禁止出现"异常/危险/出事"） | 出现的页面 |
+| 枚举 | 界面标签 | 颜色 | 界面上的措辞（禁止出现"异常/危险/出事"） | 出现的页面 |
 | --- | --- | --- | --- | --- |
-| `NORMAL` 正常记录 | 正常记录 | 绿 | "已收到完整数据" | P3 / P7 |
-| `USER_FEEDBACK` 本人反馈 | 本人反馈 | 蓝 | "由你自己填写" | P3 / P6 / P8 |
-| `DELAYED` 同步延迟 | 同步延迟 | 琥珀 | "数据还没同步完成，稍后再看" | P6 |
-| `MISSING` 数据缺失 | 数据缺失 | 灰 | "今天还没有收到你的签到记录" | P3 / P6 |
-| `OFFLINE` 设备离线 | 设备离线 | 灰 | "手机或手表处于离线状态" | P6 |
-| `INSUFFICIENT` 数据不足 | 数据不足 | 灰 | "历史记录太少，暂不判断" | P7 |
+| `NORMAL` ↔ `normal` | 正常记录 | 绿 | "已收到完整数据" | P3 / P7 |
+| `USER_FEEDBACK` ↔ `user_feedback` | 本人反馈 | 蓝 | "由你自己填写" | P3 / P6 / P8 |
+| `DELAYED` ↔ `sync_delay` | 同步延迟 | 琥珀 | "数据还没同步完成，稍后再看" | P6 |
+| `MISSING` ↔ `missing_unknown` | 数据缺失 | 灰 | "今天还没有收到你的签到记录" | P3 / P6 |
+| `OFFLINE` ↔ `device_offline` | 设备离线 | 灰 | "手机或手表处于离线状态" | P6 |
+| `INSUFFICIENT` ↔ `insufficient` | 数据不足 | 灰 | "历史记录太少，暂不判断" | P7 |
+
+> wire 值以 [api.md](api.md) 第 2 节为准；Kotlin 只认枚举，字符串转换在成员 B 的 Mappers 里做。
 
 实现：`ui/components/Common.kt` 里的 `TrustBadge` + `trustColors()`，全 App 只此一处定义，禁止页面自己写颜色。
 
@@ -275,22 +277,26 @@ android-app/
 
 ## 10. 页面数据需求（给 B 和 C 看）
 
-> 这是 A 对 B/C 的"点单"。字段名以 `docs/api.md` 的公共字段为准，**A 不自己发明字段**。
+> 这是 A 对 B/C 的"点单"。字段名与路径以 [api.md](api.md) v2.0 为准，**A 不自己发明字段**。
+> 右列是 A 接入时实际会调用的接口（成员 B 的 `CompanionRepository` 需覆盖这些）。
 
-| 页面 | 需要的数据 | 提交的数据 | 谁提供 |
+| 页面 | 需要的数据 | 提交的数据 | 调用接口 |
 | --- | --- | --- | --- |
-| P1 登录 | `user_id`、角色、token | 手机号、密码 | C |
-| P2 注册 | —— | 角色、姓名、手机号、密码 | C |
-| P3 首页 | 今日签到 `daily_checkins`、基线 `baseline_profiles`、最近 3 条活动、待确认 `care_events` | 无 | C + D |
-| P4 签到 | —— | `check_in_at`、`status`、`mood`、`note`、`want_family_call` | C |
-| P5 活动 | 今日活动列表 | `activity_type`、`recorded_at`、`note` | C |
-| P6 时间线 | 近 14 天签到 + 活动，**含每天的数据可信度状态** | 无 | C + D |
-| P7 统计 | 基线：中位数、波动、最早/最晚、有效天数、日均活动数；近 7 天活动数；关怀事件数 | 无 | D |
-| P8 我的 | 用户资料、邀请码、家属列表与授权状态 | 授权开关变更 | C |
-| P9 询问 | 事件原因文案、事件 id | `feedback_type` | C + D |
+| P1 登录 | token、`user_id`、角色 | `username`、`password` | `POST /auth/login` |
+| P2 注册 | —— | `role`、`username`、`display_name`、`password` | `POST /auth/register` |
+| P3 首页 | 今日签到、基线、最近 3 条活动、待确认事件 | 无 | `GET /checkins/me/today`、`GET /baselines/me`、`GET /activities/me`、`GET /care-events/me`、`GET /auth/me` |
+| P4 签到 | —— | `check_in_at`、`status`、`mood`、`note` | `POST /checkins`；开关打开时另发 `POST /feedback`（`feedback_type=want_family_contact`） |
+| P5 活动 | 今日活动列表 | `activity_type`、`recorded_at`、`note` | `POST /activities`、`GET /activities/me` |
+| P6 时间线 | 近 14 天签到 + 活动，**每条带 `trust_state`** | 无 | `GET /checkins/me`、`GET /activities/me`（客户端按天分组） |
+| P7 统计 | 基线：中位数、波动、有效天数、日均活动数；近 7 天活动数 | 无 | `GET /baselines/me` + 客户端从活动列表聚合 |
+| P8 我的 | 资料、邀请码、家属列表与授权范围 | 授权开关变更 | `GET /auth/me`、`POST /family/invite-code`、`GET /family/links`、`PUT /family/links/{id}/permission` |
+| P9 询问 | 事件原因文案、事件 id | `response` | `GET /care-events/me`、`POST /care-events/{id}/respond` |
 
-**A 需要的统一结构（请 C 确认）**：每个列表项都必须带一个 `trust_state` 字段，取值是
-`normal | missing | offline | delayed | user_feedback | insufficient`，否则界面无法区分"没数据"和"没活动"。
+**A 需要的统一结构**：每个列表项都必须带 `trust_state`，取值是
+`normal | missing_unknown | device_offline | sync_delay | user_feedback | insufficient`，否则界面无法区分"没数据"和"没活动"。
+
+**P9 的状态**：后端 5 态 `pending → asking → answered → family_pending → closed`，
+A 的 `CareEventStatus` 已按这 5 态实现，界面文案只描述"进行到哪一步"。
 
 ---
 

@@ -18,6 +18,16 @@ import java.time.LocalTime
  * UI 必须能把「没收到数据」和「用户真的没活动」区分开，
  * 任何一屏都不允许把 MISSING / OFFLINE / DELAYED 显示成"异常"或"危险"。
  */
+/**
+ * 数据可信度（wire 值，见 docs/api.md v2.0）：
+ *   NORMAL        ↔ normal
+ *   MISSING       ↔ missing_unknown
+ *   OFFLINE       ↔ device_offline
+ *   DELAYED       ↔ sync_delay
+ *   USER_FEEDBACK ↔ user_feedback
+ *   INSUFFICIENT  ↔ insufficient
+ * 转换在成员 B 的 Mappers 里做，界面只认枚举。
+ */
 enum class DataTrustState(val label: String, val explanation: String) {
     NORMAL("正常记录", "已收到完整数据"),
     MISSING("数据缺失", "还没有收到这段时间的数据，原因未知"),
@@ -27,7 +37,7 @@ enum class DataTrustState(val label: String, val explanation: String) {
     INSUFFICIENT("数据不足", "历史记录太少，暂不判断")
 }
 
-/** 签到时的主观状态 */
+/** 签到时的主观状态。wire：NORMAL=normal / GOOD=good / UNWELL=uncomfortable / NEED_HELP=need_help */
 enum class CheckInStatus(val label: String) {
     GOOD("很好"),
     NORMAL("一般"),
@@ -35,7 +45,7 @@ enum class CheckInStatus(val label: String) {
     NEED_HELP("需要帮助")
 }
 
-/** 心情 */
+/** 心情。wire：happy / calm / tired / low（注意不是签到状态那套词） */
 enum class MoodType(val label: String) {
     HAPPY("开心"),
     CALM("平静"),
@@ -44,7 +54,10 @@ enum class MoodType(val label: String) {
     UNKNOWN("未选择")
 }
 
-/** 活动类型，与后端 activity_type 枚举保持一致 */
+/**
+ * 活动类型。wire（后端已落库，不要改）：
+ *   wake_up / go_out / go_home / meal / exercise / rest / medication / other
+ */
 enum class ActivityType(val label: String) {
     WAKE("起床"),
     OUT("外出"),
@@ -56,7 +69,10 @@ enum class ActivityType(val label: String) {
     OTHER("其他")
 }
 
-/** 收到主动询问后，本人的反馈（feedback_type） */
+/**
+ * 收到主动询问后本人的反馈（request 里的 response，写入后是 feedback_type）。
+ * wire：fine / busy / unwell / want_family_contact / no_answer
+ */
 enum class FeedbackType(val label: String) {
     I_AM_FINE("我很好"),
     BUSY("今天比较忙"),
@@ -65,12 +81,22 @@ enum class FeedbackType(val label: String) {
     NO_ANSWER("暂时不想回答")
 }
 
-/** 关怀事件状态（event_status） */
+/**
+ * 关怀事件状态（event_status），与后端状态机一一对应：
+ *   pending        → PENDING          刚生成，等本人回答
+ *   asking         → ASKING           已经发出询问
+ *   answered       → ANSWERED         本人已经回答
+ *   family_pending → AWAITING_FAMILY  已通知家属，等家属处理
+ *   closed         → CLOSED           事件结束
+ *
+ * ⚠️ 界面文案只能描述"进行到哪一步"，不能出现"危险/异常"这类判断。
+ */
 enum class CareEventStatus(val label: String) {
-    PENDING("待本人确认"),
-    AWAITING_FAMILY("等待家属处理"),
-    HANDLED("已处理"),
-    CLOSED("已关闭")
+    PENDING("待确认"),
+    ASKING("已询问，等你回答"),
+    ANSWERED("你已回答"),
+    AWAITING_FAMILY("等待家人处理"),
+    CLOSED("已结束")
 }
 
 /** 一天一条签到记录 */

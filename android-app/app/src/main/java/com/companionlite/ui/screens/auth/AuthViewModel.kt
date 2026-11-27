@@ -8,12 +8,17 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * 登录 / 注册页共用的 ViewModel。
  *
- * 现在只做本地格式校验，真正的账号密码校验由成员 C 的后端接口完成。
- * 成员 B 接入后，把 login() 里的最后两行换成调用 Repository 的挂起函数即可，
+ * 账号体例已和后端对齐（docs/api.md v2.0）：
+ *   POST /api/v1/auth/register  { username, password, display_name, role }
+ *   POST /api/v1/auth/login     { username, password }
+ * 所以登录用的是**用户名**（3–50 位），不是手机号；手机号只是可选资料。
+ *
+ * 现在只做本地格式校验，真正的账号密码校验由成员 C 的后端完成。
+ * 成员 B 接好后，把 login() 最后两行换成调用 Repository 的挂起函数即可，
  * 页面代码一行都不用改。
  */
 data class AuthUiState(
-    val phone: String = "",
+    val username: String = "",
     val password: String = "",
     val name: String = "",
     val isFamily: Boolean = false,
@@ -28,8 +33,8 @@ class AuthViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    fun onPhoneChange(value: String) {
-        _uiState.value = _uiState.value.copy(phone = value, error = null)
+    fun onUsernameChange(value: String) {
+        _uiState.value = _uiState.value.copy(username = value, error = null)
     }
 
     fun onPasswordChange(value: String) {
@@ -46,17 +51,19 @@ class AuthViewModel : ViewModel() {
 
     fun login() {
         val current = _uiState.value
-        if (current.phone.isBlank()) {
-            _uiState.value = current.copy(error = "请填写手机号")
-            return
-        }
-        if (current.phone.length != 11) {
-            _uiState.value = current.copy(error = "手机号应该是 11 位数字")
-            return
-        }
-        if (current.password.length < 6) {
-            _uiState.value = current.copy(error = "密码至少 6 位")
-            return
+        when {
+            current.username.isBlank() -> {
+                _uiState.value = current.copy(error = "请填写用户名")
+                return
+            }
+            current.username.length !in 3..50 -> {
+                _uiState.value = current.copy(error = "用户名要 3–50 位")
+                return
+            }
+            current.password.length < 6 -> {
+                _uiState.value = current.copy(error = "密码至少 6 位")
+                return
+            }
         }
         // TODO(成员 B)：这里改成调用后端登录接口，成功后保存 token
         _uiState.value = current.copy(isSubmitting = true, error = null)
@@ -65,17 +72,19 @@ class AuthViewModel : ViewModel() {
 
     fun register() {
         val current = _uiState.value
-        if (current.name.isBlank()) {
-            _uiState.value = current.copy(error = "请填写称呼")
-            return
-        }
-        if (current.phone.length != 11) {
-            _uiState.value = current.copy(error = "手机号应该是 11 位数字")
-            return
-        }
-        if (current.password.length < 6) {
-            _uiState.value = current.copy(error = "密码至少 6 位")
-            return
+        when {
+            current.name.isBlank() -> {
+                _uiState.value = current.copy(error = "请填写称呼")
+                return
+            }
+            current.username.length !in 3..50 -> {
+                _uiState.value = current.copy(error = "用户名要 3–50 位")
+                return
+            }
+            current.password.length < 6 -> {
+                _uiState.value = current.copy(error = "密码至少 6 位")
+                return
+            }
         }
         // TODO(成员 B)：这里改成调用后端注册接口
         _uiState.value = current.copy(isSubmitting = true, error = null)

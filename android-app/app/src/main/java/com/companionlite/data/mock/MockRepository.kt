@@ -160,7 +160,7 @@ object MockRepository {
             }
         }
 
-    /** 演示账号 */
-    const val DEMO_PHONE = "13800000001"
+    /** 演示账号（与后端注册体例一致：用户名 + 密码） */
+    const val DEMO_USERNAME = "laowang"
     const val DEMO_PASSWORD = "123456"
 }

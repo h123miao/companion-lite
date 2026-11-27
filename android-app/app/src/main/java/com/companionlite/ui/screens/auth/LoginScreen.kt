@@ -92,20 +92,20 @@ fun LoginScreen(
 
         SectionCard {
             Text(
-                text = "手机号登录",
+                text = "账号登录",
                 style = MaterialTheme.typography.titleMedium,
                 color = InkText
             )
             Spacer(modifier = Modifier.height(Dimens.GapL))
 
             OutlinedTextField(
-                value = state.phone,
-                onValueChange = viewModel::onPhoneChange,
-                label = { Text("手机号") },
-                placeholder = { Text("请输入 11 位手机号") },
+                value = state.username,
+                onValueChange = viewModel::onUsernameChange,
+                label = { Text("用户名") },
+                placeholder = { Text("注册时填的用户名，3–50 位") },
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -159,7 +159,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(Dimens.GapXl))
 
         DemoBanner(
-            text = "演示账号：13800000001 / 123456。当前版本所有页面使用模拟数据。"
+            text = "演示账号：laowang / 123456。当前版本所有页面使用模拟数据。"
         )
 
         Spacer(modifier = Modifier.height(Dimens.GapL))

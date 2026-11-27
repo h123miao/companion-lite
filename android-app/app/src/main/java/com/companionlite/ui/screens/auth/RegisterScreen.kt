@@ -99,23 +99,23 @@ fun RegisterScreen(
 
             SectionCard(title = "账号信息") {
                 OutlinedTextField(
+                    value = state.username,
+                    onValueChange = viewModel::onUsernameChange,
+                    label = { Text("用户名") },
+                    placeholder = { Text("3–50 位，登录时用它") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(Dimens.GapM))
+                OutlinedTextField(
                     value = state.name,
                     onValueChange = viewModel::onNameChange,
                     label = { Text("怎么称呼你") },
                     placeholder = { Text("例如：王秀兰") },
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(Dimens.GapM))
-                OutlinedTextField(
-                    value = state.phone,
-                    onValueChange = viewModel::onPhoneChange,
-                    label = { Text("手机号") },
-                    placeholder = { Text("请输入 11 位手机号") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(14.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(Dimens.GapM))
