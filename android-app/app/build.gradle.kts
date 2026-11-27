@@ -17,6 +17,11 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+
+        // 后端地址（成员 B 引入）。
+        // 模拟器：10.0.2.2 就是"你的电脑"；真机改成电脑的局域网 IP，例如 http://192.168.1.5:8000/
+        // 结尾的 / 不能少，Retrofit 的规矩。
+        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
     }
 
     buildTypes {
@@ -40,6 +45,8 @@ android {
 
     buildFeatures {
         compose = true
+        // 成员 B 引入：要用 BuildConfig.BASE_URL 配后端地址
+        buildConfig = true
     }
 
     packaging {
@@ -66,6 +73,11 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
 
-    // 说明：Retrofit / Room 由成员 B 在网络与本地存储层引入，
-    // A 的 UI 层只依赖上面这些，避免两个人都改 build.gradle.kts 造成冲突。
+    // 成员 B 引入：网络层（Retrofit + OkHttp + Gson）
+    // Room 本地缓存下一步再加，避免这一次 PR 引入太多新东西
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.gson)
 }
