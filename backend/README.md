@@ -1,47 +1,56 @@
-# backend / —— 成员 C 的后端目录
+# backend / —— FastAPI 后端
 
-> 负责人：**成员 C** ｜ 其他人不要改这个目录
+> 主要负责人：**成员 C**（后端全部模块）
 
-## 这里放什么
-
-```text
-backend/
-├── requirements.txt          # 依赖清单（C 维护）
-├── .env.example              # 环境变量示例（不要把真实密钥提交）
-└── app/
-    ├── main.py               # FastAPI 入口
-    ├── core/                 # 配置、安全（密码哈希、JWT）
-    ├── models/               # SQLAlchemy 模型
-    ├── schemas/              # Pydantic 模型
-    ├── api/v1/               # 路由：auth / users / family / checkins / activities / care_events
-    ├── crud/                 # 数据库操作
-    └── services/             # 业务逻辑（调用 algorithm/）
-```
-
-## 怎么跑起来
+## 在 `backend/` 目录下运行
 
 ```bash
-cd backend
-python -m venv .venv
-.venv\Scripts\activate              # Windows
-# source .venv/bin/activate         # macOS / Linux
 pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload      # Windows / macOS / Linux 通用
 ```
 
+启动后访问：
+
 - Swagger 文档：<http://127.0.0.1:8000/docs>
-- 手机访问：`http://<电脑局域网IP>:8000`（手机和电脑连同一个 WiFi）
+- 健康检查：<http://127.0.0.1:8000/>
 
-## 必须遵守
+运行测试：
 
-1. 接口路径、字段名以 `docs/api.md` 为准，改了先改文档。
-2. 列表接口每一条记录都要带 `trust_state`（Android 界面靠它区分"没数据"和"没活动"）。
-3. 时间统一存 UTC。
-4. 密码只存哈希。
-5. 家属查询必须校验 `family_links` 的授权，撤销后立即生效。
-6. 不提交 `*.db`、`.env`、`.venv/`。
+```bash
+pytest -q
+```
 
-## 当前状态
+## 目录结构
 
-⏳ 等待 C 提交第一个可运行版本（用户注册 + 签到接口）。
-Android 端先用 `android-app/.../data/mock/MockRepository.kt` 里的模拟数据跑界面。
+```text
+app/
+├── main.py               FastAPI 入口（lifespan 建表 + 挂载路由）
+├── config.py             配置（环境变量覆盖）
+├── database.py           引擎 / Session / Base
+├── core/                 安全（bcrypt + JWT）、时间统一处理
+├── models/               SQLAlchemy ORM 模型（10 张表）
+├── schemas/              Pydantic 请求 / 响应模型
+├── algorithm_adapter/    算法接入层（成员 D 的替换点）
+├── services/             业务逻辑（基线 / 邀请码 / 授权）
+└── api/v1/               路由（15 个模块，挂在 /api/v1 下）
+tests/                    8 个测试文件 + conftest（内存 SQLite）
+```
+
+## 与算法模块的边界
+
+后端只负责组装输入、调用算法、保存输出，**不实现算法逻辑**。
+成员 D 提供 `algorithm/` 目录的正式实现后，替换 `app/algorithm_adapter/baseline.py`
+中的调用即可，输入输出格式保持不变。
+
+## 几个约定
+
+- **时间**：数据库一律存 UTC（naive datetime，语义为 UTC），展示时按 `user.timezone` 转换。
+- **数据可信度**：少于 7 个有效本地日期时 `data_sufficient=False`，此时不产出任何变化结论。
+- **家属授权**：所有家属访问本人数据都经过 `services/permission.py` 校验，撤销授权后立即拒绝。
+- **一键呼救**：由本人主动触发，系统不自动拨打 120。
+
+## 不要提交
+
+`*.db`、`backend/data/`、`__pycache__/`、`.venv/` —— `.gitignore` 已屏蔽。
+
+完整源码与讲解见 [../docs/backend-source-code.md](../docs/backend-source-code.md)。
